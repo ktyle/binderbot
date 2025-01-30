@@ -13,7 +13,6 @@ import uuid
 import random
 from yarl import URL
 import asyncio
-import async_timeout
 import structlog
 import time
 import json

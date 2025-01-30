@@ -1,6 +1,7 @@
 """Console script for binderbot."""
 import asyncio
-from functools import update_wrapper
+#from functools import update_wrapper # deprecated
+from functools import wraps
 import os
 import sys
 
@@ -10,12 +11,26 @@ import nbformat
 from .binderbot import BinderUser
 
 # https://github.com/pallets/click/issues/85#issuecomment-43378930
+# Deprecated asyncio.coroutine block:
+#def coro(f):
+#    f = asyncio.coroutine(f)
+#    def wrapper(*args, **kwargs):
+#        loop = asyncio.get_event_loop()
+#        return loop.run_until_complete(f(*args, **kwargs))
+#    return update_wrapper(wrapper, f)
+
+# Updated asyncio def:
+
 def coro(f):
-    f = asyncio.coroutine(f)
+    async def async_wrapper(*args, **kwargs):
+        return await f(*args, **kwargs)
+
+    @wraps(f)
     def wrapper(*args, **kwargs):
         loop = asyncio.get_event_loop()
-        return loop.run_until_complete(f(*args, **kwargs))
-    return update_wrapper(wrapper, f)
+        return loop.run_until_complete(async_wrapper(*args, **kwargs))
+
+    return wrapper
 
 @click.command()
 @click.option('--binder-url', default='https://binder.pangeo.io',
